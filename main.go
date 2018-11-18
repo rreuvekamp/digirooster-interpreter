@@ -16,60 +16,59 @@ type wrapper struct {
 
 type data struct {
 	ScheduleStart int
-	ScheduleEnd int
-	ScheduleId string
-	ChangeData []map[string]interface{}
-	ActivityData []activity
+	ScheduleEnd   int
+	ScheduleId    string
+	ChangeData    []map[string]interface{}
+	ActivityData  []activity
 }
 
 type activity struct {
-	ID string
+	ID          string
 	Description string
-	Location string
-	Student string
-	Start int
-	End int
-	Week int
-	Width int
-	Left int
+	Location    string
+	Student     string
+	Start       int
+	End         int
+	Week        int
+	Width       int
+	Left        int
 }
 
-
 type templateData struct {
-	ClassName string
+	ClassName        string
 	GeneratedTimeStr string
-	Weeks []templateWeek
+	Weeks            []templateWeek
 }
 
 type templateWeek struct {
 	WeekNumber uint8
-	Hours int
-	StartAt int
-	EndAt int
-	Days []templateDay
+	Hours      int
+	StartAt    int
+	EndAt      int
+	Days       []templateDay
 }
 
 type templateDay struct {
-	DayString string
-	Hours int
+	DayString  string
+	Hours      int
 	Activities []templateActivity
 }
 
 type templateActivity struct {
-	Desc string
-	Loc string
+	Desc    string
+	Loc     string
 	Classes []string
 
-	Start time.Time
-	End time.Time
+	Start    time.Time
+	End      time.Time
 	StartStr string
-	EndStr string
+	EndStr   string
 
 	Padding int
-	Height int
+	Height  int
 
 	NonImportant bool
-	Important bool
+	Important    bool
 }
 
 func main() {
@@ -87,7 +86,7 @@ func main() {
 	}
 
 	//for _,a := range d.ActivityData {
-		//fmt.Println(a.Description, a.Location, a.Student)
+	//fmt.Println(a.Description, a.Location, a.Student)
 	//}
 
 	tmpl, err := template.ParseFiles("page.tmpl")
@@ -119,7 +118,7 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 		if _, ok := weeks[key]; !ok {
 			weeks[key] = templateWeek{
 				WeekNumber: uint8(weekNumber),
-				Days: make([]templateDay, 5, 5),
+				Days:       make([]templateDay, 5, 5),
 			}
 		}
 
@@ -132,7 +131,7 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 			classes[i] = split2[len(split2)-1] // last element op split2
 		}
 
-		ta := templateActivity {
+		ta := templateActivity{
 			a.Description,
 			a.Location,
 			classes,
@@ -145,7 +144,6 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 			isNonImportant(a),
 			isImportant(a),
 		}
-
 
 		if weeks[key].Days[start.Weekday()-1].DayString == "" {
 			weeks[key].Days[start.Weekday()-1].DayString = start.Format("Mon 2 Jan")
@@ -183,19 +181,19 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 					dMinutes += int(a.End.Sub(a.Start).Minutes())
 				}
 
-				weeks[k].Days[di].Activities[ai].Height = (end-start)/2
+				weeks[k].Days[di].Activities[ai].Height = (end - start) / 2
 
-				weeks[k].Days[di].Activities[ai].Padding = (start-cur)/2
+				weeks[k].Days[di].Activities[ai].Padding = (start - cur) / 2
 
 				cur = end
 			}
 
 			wMinutes += dMinutes
 
-			weeks[k].Days[di].Hours = dMinutes/60
+			weeks[k].Days[di].Hours = dMinutes / 60
 		}
 
-		w.Hours = wMinutes/60
+		w.Hours = wMinutes / 60
 		w.StartAt = first
 		w.EndAt = last
 		weeks[k] = w
