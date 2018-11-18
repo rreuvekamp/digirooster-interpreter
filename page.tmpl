@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Remi's rooster</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+	<div>
+		<strong>{{.ClassName}}</strong> (<a href="#">current week</a>) <small>(generated on: {{.GeneratedTimeStr}})</small>
+	</div>
+</header>
+<main>
+{{range .Weeks}}
+	<h2 id="week_{{.WeekNumber}}">Week: {{.WeekNumber}} ({{.Hours}} hours)</h2>
+	<section data-week="{{.WeekNumber}}" data-startat="{{.StartAt}}" data-endat="{{.EndAt}}">
+	{{range $index, $d := .Days}}
+		<div class="day" data-day="{{$index}}">
+		<h3>{{if .DayString}}{{ .DayString}} ({{.Hours}} hours){{else}}&nbsp;{{end}}</h3>
+		<div class="activities">
+		{{range $d.Activities}}
+			<div class="activity{{if .NonImportant}} nonimportant{{end}}{{if .Important}} important{{end}}"  style="margin-top: {{.Padding}}px; min-height: {{.Height}}px; height: {{.Height}}px;">
+			{{.StartStr}} - {{.EndStr}}<br />
+			{{.Desc}}<br />
+			{{.Loc}}<br />
+			<span title="{{range .Classes}}{{.}}, {{end}}">{{len .Classes}} classes</span><br />
+			</div>
+		{{end}}
+		</div>
+		</div>
+	{{end}}
+	</section>
+{{end}}
+</main>
+<script type="text/javascript" src="script.js"></script>
+</body>
+</html>
