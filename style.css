@@ -1,5 +1,5 @@
 body {
-	line-height: 1.6;
+	line-height: 1.7;
 	font-size: 12px;
 }
 
@@ -35,6 +35,13 @@ div.day h3 {
 	border-bottom: 3px solid #ffffff;
 	margin: 3px;
 	padding: 5px;
+	box-sizing: border-box;
+	display: block;
+}
+
+div.day h4 {
+	border-bottom: 3px solid #eeeeee;
+	margin: 0px;
 	box-sizing: border-box;
 	display: block;
 }

@@ -42,6 +42,7 @@ type activity struct {
 	Description string
 	Location    string
 	Student     string
+	Staff       string
 	Start       int
 	End         int
 	Week        int
@@ -70,9 +71,11 @@ type templateDay struct {
 }
 
 type templateActivity struct {
-	Desc    string
-	Loc     string
-	Classes []string
+	Desc     string
+	OrigDesc string
+	Loc      string
+	Staff    []string
+	Classes  []string
 
 	Start    time.Time
 	End      time.Time
@@ -137,19 +140,12 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 			}
 		}
 
-		split := strings.Split(a.Student, ", ")
-
-		classes := make([]string, len(split))
-		for i, s := range split {
-			// Classes have a prefix like "BF\"
-			split2 := strings.Split(s, "\\")
-			classes[i] = split2[len(split2)-1] // last element op split2
-		}
-
 		ta := templateActivity{
+			descName(a.Description),
 			a.Description,
 			a.Location,
-			classes,
+			staffName(a.Staff),
+			classNames(a.Student),
 			start,
 			end,
 			start.Format("15:04"),
@@ -269,4 +265,75 @@ func isImportant(a activity) bool {
 	}
 
 	return false
+}
+
+func staffName(short string) []string {
+	split := strings.Split(short, ", ")
+
+	names := []string{}
+
+	for _, sh := range split {
+		n := ""
+		s := strings.ToUpper(sh)
+		switch s {
+		case "HATJ":
+			n = "T. Harkema"
+		case "BRUM":
+			n = "M. de Bruin"
+		case "BREJ":
+			n = "J. Bredek"
+		case "HEBL":
+			n = "B. Heijne"
+		case "BROH":
+			n = "H. Brouwers"
+		case "BIKO":
+			n = "K. Bijker"
+		}
+
+		if len(n) > 0 {
+			names = append(names, n)
+		} else {
+			names = append(names, sh)
+		}
+	}
+
+	sort.Strings(names)
+
+	return names
+}
+
+func classNames(orig string) []string {
+	split := strings.Split(orig, ", ")
+
+	classes := make([]string, len(split))
+	for i, s := range split {
+		// Classes have a prefix like "BF\"
+		split2 := strings.Split(s, "\\")
+		s = split2[len(split2)-1] // last element op split2
+		s = strings.Replace(s, "ITV", "ITV-", 1)
+		classes[i] = s
+	}
+
+	sort.Strings(classes)
+
+	return classes
+}
+
+func descName(orig string) string {
+	items := strings.Split(orig, "/")
+	name := items[len(items)-1] // last element of items
+
+	split := strings.Split(name, " ")
+	for i, s := range split {
+		sl := strings.ToLower(s)
+		switch sl {
+		case "pr":
+			s = "practicum"
+		case "th":
+			s = "lecture"
+		}
+		split[i] = s
+	}
+
+	return strings.Join(split, " ")
 }

@@ -42,6 +42,16 @@ function highlightCurrent() {
 	}
 }
 
+let titleEls = document.querySelectorAll("[title]")
+for (let i = 0; i < titleEls.length; ++i) { 
+	titleEls[i].addEventListener("click", function(e) {
+		let title = titleEls[i].getAttribute("title")
+		let content = titleEls[i].innerHTML
+		titleEls[i].setAttribute("title", content)
+		titleEls[i].innerHTML = title
+	})
+}
+
 highlightCurrent()
 
 setTimeout(highlightCurrent, 30000) // 5 minutes

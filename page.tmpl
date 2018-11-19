@@ -9,7 +9,7 @@
 <body>
 <header>
 	<div>
-		<strong>{{.ClassName}}</strong> (<a href="#">current week</a>) <small>(generated on: {{.GeneratedTimeStr}})</small>
+		<strong>{{.ClassName}}</strong> - <a href="#">current week</a> - <a href="index.html">home</a> <small>(generated on: {{.GeneratedTimeStr}})</small>
 	</div>
 </header>
 <main>
@@ -22,10 +22,10 @@
 		<div class="activities">
 		{{range $d.Activities}}
 			<div class="activity{{if .NonImportant}} nonimportant{{end}}{{if .Important}} important{{end}}"  style="margin-top: {{.Padding}}px; min-height: {{.Height}}px; height: {{.Height}}px;">
-			{{.StartStr}} - {{.EndStr}}<br />
-			{{.Desc}}<br />
+			<div style="float: right;">{{.StartStr}}</div><h4><span title="{{.OrigDesc}}">{{.Desc}}</span></h4>
 			{{.Loc}}<br />
-			<span title="{{range .Classes}}{{.}}, {{end}}">{{len .Classes}} classes</span><br />
+			{{range $i, $s := .Staff}}{{if gt $i 0}}, {{end}}{{$s}}{{end}}<br />
+			<div style="float:right;"><span title="{{range $i, $c := .Classes}}{{if gt $i 0}}, {{end}}{{$c}}{{end}}">{{len .Classes}} class{{if gt (len .Classes) 1}}es{{end}}</span></div><small>Ends: {{.EndStr}}</small><br />
 			</div>
 		{{end}}
 		</div>
