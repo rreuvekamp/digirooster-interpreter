@@ -288,6 +288,12 @@ func staffName(short string) []string {
 			n = "H. Brouwers"
 		case "BIKO":
 			n = "K. Bijker"
+		case "NOLI":
+			n = "L. Noordhuis"
+		case "KEHT":
+			n = "T. van Keulen"
+		case "THAR":
+			n = "A. Thuss"
 		}
 
 		if len(n) > 0 {
