@@ -9,23 +9,23 @@
 <body>
 <header>
 	<div>
-		<strong>{{.ClassName}}</strong> - <a href="#">current week</a> - <a href="index.html">home</a> <small>(generated on: {{.GeneratedTimeStr}})</small>
+		<strong>{{.ClassName}}</strong> - <a href="index.html">home</a> <div class="spacer"> </div> <div style="display: inline-block;"><button id="left">&larr;</button><button id="currentweek">current week</button><button id="right">&rarr;</button></div>
 	</div>
 </header>
 <main>
 {{range .Weeks}}
-	<h2 id="week_{{.WeekNumber}}">Week: {{.WeekNumber}} ({{.Hours}} hours)</h2>
+	<h2 id="week_{{.WeekNumber}}">Week {{.WeekNumber}} <small>({{.Hours}} hours)</small></h2>
 	<section data-week="{{.WeekNumber}}" data-startat="{{.StartAt}}" data-endat="{{.EndAt}}">
 	{{range $index, $d := .Days}}
 		<div class="day" data-day="{{$index}}">
-		<h3>{{if .DayString}}{{ .DayString}} ({{.Hours}} hours){{else}}&nbsp;{{end}}</h3>
+		<h3>{{if .DayString}}{{ .DayString}} <small>({{.Hours}} hours)</small>{{else}}&nbsp;{{end}}</h3>
 		<div class="activities">
 		{{range $d.Activities}}
 			<div class="activity{{if .NonImportant}} nonimportant{{end}}{{if .Important}} important{{end}}"  style="margin-top: {{.Padding}}px; min-height: {{.Height}}px; height: {{.Height}}px;">
 			<div style="float: right;">{{.StartStr}}</div><h4><span title="{{.OrigDesc}}">{{.Desc}}</span></h4>
 			{{.Loc}}<br />
 			{{range $i, $s := .Staff}}{{if gt $i 0}}, {{end}}{{$s}}{{end}}<br />
-			<div style="float:right;"><span title="{{range $i, $c := .Classes}}{{if gt $i 0}}, {{end}}{{$c}}{{end}}">{{len .Classes}} class{{if gt (len .Classes) 1}}es{{end}}</span></div><small>Ends: {{.EndStr}}</small><br />
+			<small><div style="float:right;"><span title="{{range $i, $c := .Classes}}{{if gt $i 0}}, {{end}}{{$c}}{{end}}">{{len .Classes}} class{{if gt (len .Classes) 1}}es{{end}}</span></div>Ends: {{.EndStr}}</small><br />
 			</div>
 		{{end}}
 		</div>
@@ -33,6 +33,7 @@
 	{{end}}
 	</section>
 {{end}}
+(generated on: {{.GeneratedTimeStr}})
 </main>
 <script type="text/javascript" src="script.js"></script>
 </body>
