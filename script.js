@@ -15,6 +15,14 @@ function goToWeek(week) {
 goToWeek()
 
 function highlightCurrent() {
+	// Delete old highlight if exists.
+	let oldElem = document.querySelector(".currenttimeline")
+	console.log(oldElem)
+	if (oldElem) {
+		oldElem.parentNode.removeChild(oldElem)
+	}
+
+	// Add new highlight.
 	let d = (new Date())
 	let m = d.getMinutes()
 	if (m < 10) {
@@ -140,4 +148,4 @@ document.addEventListener("keydown", function(e) {
 
 highlightCurrent()
 
-setTimeout(highlightCurrent, 30000) // 5 minutes
+setInterval(highlightCurrent, 300000) // 5 minutes

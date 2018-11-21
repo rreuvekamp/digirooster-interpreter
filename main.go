@@ -333,7 +333,7 @@ func descName(orig string) string {
 	for i, s := range split {
 		sl := strings.ToLower(s)
 		switch sl {
-		case "pr":
+		case "pr", "wc":
 			s = "practicum"
 		case "th":
 			s = "lecture"
