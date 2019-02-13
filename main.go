@@ -74,7 +74,7 @@ type templateActivity struct {
 	Desc     string
 	OrigDesc string
 	Loc      string
-	Staff    []string
+	Staff    []templateStaff
 	Classes  []string
 
 	Start    time.Time
@@ -87,6 +87,11 @@ type templateActivity struct {
 
 	NonImportant bool
 	Important    bool
+}
+
+type templateStaff struct {
+	ID   string
+	Name string
 }
 
 func main() {
@@ -267,10 +272,12 @@ func isImportant(a activity) bool {
 	return false
 }
 
-func staffName(short string) []string {
+func staffName(short string) []templateStaff {
 	split := strings.Split(short, ", ")
 
-	names := []string{}
+	sort.Strings(split)
+
+	names := []templateStaff{}
 
 	for _, sh := range split {
 		n := ""
@@ -294,16 +301,27 @@ func staffName(short string) []string {
 			n = "T. van Keulen"
 		case "THAR":
 			n = "A. Thuss"
+		case "NIEV":
+			n = "E. Nijkamp"
+		case "BJAB":
+			n = "J. de Boer"
+		case "HOEM":
+			n = "M. Hoebe"
+		case "KOFA":
+			n = "F. de Kooi"
+		}
+
+		staff := templateStaff{
+			ID: sh,
 		}
 
 		if len(n) > 0 {
-			names = append(names, n)
-		} else {
-			names = append(names, sh)
+			staff.Name = n
 		}
-	}
 
-	sort.Strings(names)
+		names = append(names, staff)
+
+	}
 
 	return names
 }
@@ -326,8 +344,19 @@ func classNames(orig string) []string {
 }
 
 func descName(orig string) string {
-	items := strings.Split(orig, "/")
-	name := items[len(items)-1] // last element of items
+	name := orig
+	items := strings.Split(name, "/")
+	if len(items) > 1 {
+		nameItems := make([]string, 0, len(items)-1)
+		for _, item := range items[1:] {
+			_, err := strconv.Atoi(item)
+			if err == nil {
+				continue
+			}
+			nameItems = append(nameItems, item)
+		}
+		name = strings.Join(nameItems, "/") // items[len(items)-1] // last element of items
+	}
 
 	split := strings.Split(name, " ")
 	for i, s := range split {

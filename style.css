@@ -35,6 +35,8 @@ div.day div.activities {
 	position: relative;
 	display: inline-block;
 	width: 100%;
+	background-size: 100% 50px;
+	background-image: linear-gradient(to bottom, transparent 49px, #cccccc 1px);
 }
 
 div.day h3 {
@@ -55,16 +57,18 @@ div.day h4 {
 div.day div.activity {
 	background-color: #ffffff;
 	overflow: hidden;
-	border-radius: 5px;
-	padding: 5px;
-	border: 2px solid #eeeeee;
+	border-radius: 3px;
+	padding: 2px 5px;
+	border: 1px solid #cccccc;
 	box-sizing: border-box;
+	width: 100%;
+	display: inline-block;
+	vertical-align: top;
 }
 
 div.day div.activity:hover {
 	overflow: visible;
 	height: 100% !important;
-	border-color: #cccccc;
 }
 
 div.day div.activity.nonimportant {

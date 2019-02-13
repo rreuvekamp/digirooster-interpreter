@@ -24,7 +24,14 @@
 			<div class="activity{{if .NonImportant}} nonimportant{{end}}{{if .Important}} important{{end}}"  style="margin-top: {{.Padding}}px; min-height: {{.Height}}px; height: {{.Height}}px;">
 			<div style="float: right;">{{.StartStr}}</div><h4><span title="{{.OrigDesc}}">{{.Desc}}</span></h4>
 			{{.Loc}}<br />
-			{{range $i, $s := .Staff}}{{if gt $i 0}}, {{end}}{{$s}}{{end}}<br />
+			{{range $i, $s := .Staff}}
+				{{if gt $i 0}}, {{end}}
+				{{if $s.Name}}
+					<span title="{{$s.ID}}">{{$s.Name}}</span>
+				{{else}}
+					{{$s.ID}}
+				{{end}}
+			{{end}}<br />
 			<small><div style="float:right;"><span title="{{range $i, $c := .Classes}}{{if gt $i 0}}, {{end}}{{$c}}{{end}}">{{len .Classes}} class{{if gt (len .Classes) 1}}es{{end}}</span></div>Ends: {{.EndStr}}</small><br />
 			</div>
 		{{end}}
