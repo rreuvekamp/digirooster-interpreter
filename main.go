@@ -1,4 +1,4 @@
-// Copyright Remi Reuvekamp 2018
+// Copyright Remi Reuvekamp 2018-2019
 
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU Affero General Public License as published by
@@ -15,47 +15,24 @@
 
 package main
 
-import "os"
-import "encoding/json"
-import "strings"
-import "log"
-import "fmt"
-import "html/template"
-import "time"
-import "sort"
-import "strconv"
+import (
+	"fmt"
+	"html/template"
+	"log"
+	"os"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
 
-type wrapper struct {
-	D string
-}
-
-type data struct {
-	ScheduleStart int
-	ScheduleEnd   int
-	ScheduleId    string
-	ChangeData    []map[string]interface{}
-	ActivityData  []activity
-}
-
-type activity struct {
-	ID          string
-	Description string
-	Location    string
-	Student     string
-	Staff       string
-	Start       int
-	End         int
-	Week        int
-	Width       int
-	Left        int
-}
+	"git.remi.im/remi/digirooster-interpreter/drparser"
+)
 
 type templateData struct {
 	ClassName        string
 	GeneratedTimeStr string
 	Weeks            []templateWeek
 }
-
 type templateWeek struct {
 	WeekNumber uint8
 	Hours      int
@@ -63,13 +40,11 @@ type templateWeek struct {
 	EndAt      int
 	Days       []templateDay
 }
-
 type templateDay struct {
 	DayString  string
 	Hours      int
 	Activities []templateActivity
 }
-
 type templateActivity struct {
 	Desc     string
 	OrigDesc string
@@ -88,7 +63,6 @@ type templateActivity struct {
 	NonImportant bool
 	Important    bool
 }
-
 type templateStaff struct {
 	ID   string
 	Name string
@@ -100,7 +74,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	d, err := parseJSON(os.Args[1])
+	d, err := readData(os.Args[1])
 	if err != nil {
 		fmt.Println("Could not open provided JSON file. Does it exist and is it valid JSON?")
 		fmt.Println("Error:")
@@ -108,12 +82,9 @@ func main() {
 		os.Exit(2)
 	}
 
-	//for _,a := range d.ActivityData {
-	//fmt.Println(a.Description, a.Location, a.Student)
-	//}
-
 	tmpl, err := template.ParseFiles("page.tmpl")
 	if err != nil {
+		fmt.Println("Could not parse template:")
 		log.Fatal(err)
 		os.Exit(3)
 	}
@@ -127,9 +98,20 @@ func main() {
 	})
 }
 
-func toTemplateWeeks(d data) ([]templateWeek, error) {
+func readData(fn string) (drparser.Data, error) {
+	f, err := os.Open(fn)
+	if err != nil {
+		return drparser.Data{}, err
+	}
+	defer f.Close()
+
+	return drparser.ParseJSON(f)
+}
+
+func toTemplateWeeks(d drparser.Data) ([]templateWeek, error) {
 	weeks := make(map[int]templateWeek)
 
+	// Transform the data into separate weeks with days.
 	for _, a := range d.ActivityData {
 		start := time.Unix(int64(a.Start/1000), 0)
 		end := time.Unix(int64(a.End/1000), 0)
@@ -168,7 +150,11 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 		weeks[key].Days[start.Weekday()-1].Activities = append(weeks[key].Days[start.Weekday()-1].Activities, ta)
 	}
 
+	// Loop over the created weeks one more time.
+	// Calculate the activity height, the vertical distance between
+	// activities and the amount of hours per day.
 	for k, w := range weeks {
+		// Determine the times of the earlier start, and last ending, activity of this week.
 		first := 0
 		last := 0
 		for _, d := range w.Days {
@@ -215,6 +201,7 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 		weeks[k] = w
 	}
 
+	// Sort the days, as the might be scrambled.
 	var keys []int
 	for k := range weeks {
 		keys = append(keys, k)
@@ -229,32 +216,8 @@ func toTemplateWeeks(d data) ([]templateWeek, error) {
 	return weeksSlice, nil
 }
 
-func parseJSON(fileName string) (data, error) {
-	f, err := os.Open(fileName)
-	if err != nil {
-		return data{}, err
-	}
-	defer f.Close()
-
-	w := wrapper{}
-
-	dec := json.NewDecoder(f)
-	err = dec.Decode(&w)
-	if err != nil {
-		return data{}, err
-	}
-
-	d := data{}
-
-	err = json.Unmarshal([]byte(w.D), &d)
-	if err != nil {
-		return d, err
-	}
-
-	return d, nil
-}
-
-func isNonImportant(a activity) bool {
+// isNonImportant determines if an activity should be marked as unimportant.
+func isNonImportant(a drparser.Activity) bool {
 	desc := strings.ToLower(a.Description)
 	if strings.Contains(desc, "honours") || strings.Contains(desc, "panel gesprek") {
 		return true
@@ -263,7 +226,8 @@ func isNonImportant(a activity) bool {
 	return false
 }
 
-func isImportant(a activity) bool {
+// isImportant determines if an activity should be marked as important.
+func isImportant(a drparser.Activity) bool {
 	desc := strings.ToLower(a.Description)
 	if strings.Contains(desc, "inzage") || strings.Contains(desc, "toets") || strings.Contains(desc, "tentamen") || strings.Contains(desc, "presentatie") {
 		return true
@@ -272,6 +236,7 @@ func isImportant(a activity) bool {
 	return false
 }
 
+// staffName gives the staff name depending on the given abbreviation.
 func staffName(short string) []templateStaff {
 	split := strings.Split(short, ", ")
 
@@ -309,6 +274,8 @@ func staffName(short string) []templateStaff {
 			n = "M. Hoebe"
 		case "KOFA":
 			n = "F. de Kooi"
+		case "STRI":
+			n = "I. Stroeffe"
 		}
 
 		staff := templateStaff{
@@ -326,6 +293,8 @@ func staffName(short string) []templateStaff {
 	return names
 }
 
+// classNames formats the comma separated list of class names and
+// transforms it to an array.
 func classNames(orig string) []string {
 	split := strings.Split(orig, ", ")
 
@@ -333,7 +302,9 @@ func classNames(orig string) []string {
 	for i, s := range split {
 		// Classes have a prefix like "BF\"
 		split2 := strings.Split(s, "\\")
-		s = split2[len(split2)-1] // last element op split2
+		if len(split2) > 1 {
+			s = split2[len(split2)-1] // last element op split2
+		}
 		s = strings.Replace(s, "ITV", "ITV-", 1)
 		classes[i] = s
 	}
@@ -343,6 +314,7 @@ func classNames(orig string) []string {
 	return classes
 }
 
+// descName formats the activity description.
 func descName(orig string) string {
 	name := orig
 	items := strings.Split(name, "/")
@@ -351,11 +323,12 @@ func descName(orig string) string {
 		for _, item := range items[1:] {
 			_, err := strconv.Atoi(item)
 			if err == nil {
+				// Skip numeric name parts.
 				continue
 			}
 			nameItems = append(nameItems, item)
 		}
-		name = strings.Join(nameItems, "/") // items[len(items)-1] // last element of items
+		name = strings.Join(nameItems, "/")
 	}
 
 	split := strings.Split(name, " ")
