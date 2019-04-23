@@ -10,6 +10,7 @@
 <header>
 	<div>
 		<strong>{{.ClassName}}</strong> - <a href="index.html">home</a> <div class="spacer"> </div> <div style="display: inline-block;"><button id="left">&larr;</button><button id="currentweek">current week</button><button id="right">&rarr;</button></div>
+		<small>updated: {{.GeneratedTimeStr}}</small>
 	</div>
 </header>
 <main>
@@ -21,18 +22,20 @@
 		<h3>{{if .DayString}}{{ .DayString}} <small>({{.Hours}} hours)</small>{{else}}&nbsp;{{end}}</h3>
 		<div class="activities">
 		{{range $d.Activities}}
-			<div class="activity{{if .NonImportant}} nonimportant{{end}}{{if .Important}} important{{end}}"  style="margin-top: {{.Padding}}px; min-height: {{.Height}}px; height: {{.Height}}px;">
-			<div style="float: right;">{{.StartStr}}</div><h4><span title="{{.OrigDesc}}">{{.Desc}}</span></h4>
-			{{.Loc}}<br />
-			{{range $i, $s := .Staff}}
-				{{if gt $i 0}}, {{end}}
-				{{if $s.Name}}
-					<span title="{{$s.ID}}">{{$s.Name}}</span>
-				{{else}}
-					{{$s.ID}}
-				{{end}}
-			{{end}}<br />
-			<small><div style="float:right;"><span title="{{range $i, $c := .Classes}}{{if gt $i 0}}, {{end}}{{$c}}{{end}}">{{len .Classes}} class{{if gt (len .Classes) 1}}es{{end}}</span></div>Ends: {{.EndStr}}</small><br />
+			<div class="activity{{if .NonImportant}} nonimportant{{end}}{{if .Important}} important{{end}}"  style="margin-top: {{.Padding}}px; min-height: {{.Height}}px; height: {{.Height}}px;box-shadow: 0px 0px 5px #{{.CourseColour}} inset;">
+				<div style="float: right;">{{.StartStr}}</div>
+				<h4><span title="{{.OrigDesc}}">{{.Desc}}</span></h4>
+				<div style="float: right; color: #{{.CourseColour}};">{{.Course}}</div>
+				{{.Loc}}<br />
+				{{range $i, $s := .Staff}}
+					{{if gt $i 0}}, {{end}}
+					{{if $s.Name}}
+						<span title="{{$s.ID}}">{{$s.Name}}</span>
+					{{else}}
+						{{$s.ID}}
+					{{end}}
+				{{end}}<br />
+				<small><div style="float:right;"><span title="{{range $i, $c := .Classes}}{{if gt $i 0}}, {{end}}{{$c}}{{end}}">{{len .Classes}} class{{if gt (len .Classes) 1}}es{{end}}</span></div>Ends: {{.EndStr}}</small><br />
 			</div>
 		{{end}}
 		</div>

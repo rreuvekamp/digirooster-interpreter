@@ -48,7 +48,7 @@ div.day h3 {
 }
 
 div.day h4 {
-	border-bottom: 2px solid #eeeeee;
+	border-bottom: 2px solid #dddddd;
 	margin: 0px;
 	box-sizing: border-box;
 	display: block;
@@ -76,7 +76,8 @@ div.day div.activity.nonimportant {
 }
 
 div.day div.activity.important {
-	box-shadow: inset 0px 0px 3px #ff5500;
+	box-shadow: inset 0px 0px 5px #ff5500 !important;
+	border-color: #ff5500;
 }
 
 header {

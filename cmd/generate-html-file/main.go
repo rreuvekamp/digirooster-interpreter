@@ -16,6 +16,7 @@
 package main
 
 import (
+	"crypto/md5"
 	"fmt"
 	"html/template"
 	"log"
@@ -47,6 +48,7 @@ type templateDay struct {
 }
 type templateActivity struct {
 	Desc     string
+	Course   string
 	OrigDesc string
 	Loc      string
 	Staff    []templateStaff
@@ -56,6 +58,8 @@ type templateActivity struct {
 	End      time.Time
 	StartStr string
 	EndStr   string
+
+	CourseColour string
 
 	Padding int
 	Height  int
@@ -113,8 +117,8 @@ func toTemplateWeeks(d drparser.Data) ([]templateWeek, error) {
 
 	// Transform the data into separate weeks with days.
 	for _, a := range d.ActivityData {
-		start := time.Unix(int64(a.Start/1000), 0)
-		end := time.Unix(int64(a.End/1000), 0)
+		start := a.Start()
+		end := a.End()
 
 		year, weekNumber := start.ISOWeek()
 
@@ -127,8 +131,11 @@ func toTemplateWeeks(d drparser.Data) ([]templateWeek, error) {
 			}
 		}
 
+		course, niceName := descName(a.Description)
+
 		ta := templateActivity{
-			descName(a.Description),
+			niceName,
+			course,
 			a.Description,
 			a.Location,
 			staffName(a.Staff),
@@ -137,6 +144,7 @@ func toTemplateWeeks(d drparser.Data) ([]templateWeek, error) {
 			end,
 			start.Format("15:04"),
 			end.Format("15:04"),
+			hashColourCode(course),
 			0,
 			0,
 			isNonImportant(a),
@@ -315,10 +323,11 @@ func classNames(orig string) []string {
 }
 
 // descName formats the activity description.
-func descName(orig string) string {
-	name := orig
-	items := strings.Split(name, "/")
+func descName(orig string) (course string, name string) {
+	items := strings.Split(orig, "/")
 	if len(items) > 1 {
+		course = items[0]
+
 		nameItems := make([]string, 0, len(items)-1)
 		for _, item := range items[1:] {
 			_, err := strconv.Atoi(item)
@@ -329,6 +338,9 @@ func descName(orig string) string {
 			nameItems = append(nameItems, item)
 		}
 		name = strings.Join(nameItems, "/")
+	} else {
+		course = ""
+		name = orig
 	}
 
 	split := strings.Split(name, " ")
@@ -343,5 +355,16 @@ func descName(orig string) string {
 		split[i] = s
 	}
 
-	return strings.Join(split, " ")
+	name = strings.Join(split, " ")
+
+	return
+}
+
+func hashColourCode(str string) string {
+	if len(str) == 0 {
+		return "ffffff"
+	}
+
+	hash := fmt.Sprintf("%x", md5.Sum([]byte(str)))
+	return string(hash[:6])
 }

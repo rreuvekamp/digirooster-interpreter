@@ -18,6 +18,7 @@ package drparser
 import (
 	"encoding/json"
 	"io"
+	"time"
 )
 
 // Wrapper is the structure of the raw JSON from the digirooster endpoint.
@@ -40,8 +41,8 @@ type Activity struct {
 	Location    string
 	Student     string
 	Staff       string
-	Start       int
-	End         int
+	StartUTS    int `json:"start"`
+	EndUTS      int `json:"end"`
 	Week        int
 	Width       int
 	Left        int
@@ -64,4 +65,12 @@ func ParseJSON(r io.Reader) (Data, error) {
 	}
 
 	return d, nil
+}
+
+func (a Activity) Start() time.Time {
+	return time.Unix(int64(a.StartUTS/1000), 0)
+}
+
+func (a Activity) End() time.Time {
+	return time.Unix(int64(a.EndUTS/1000), 0)
 }
