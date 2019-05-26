@@ -18,6 +18,7 @@ package drparser
 import (
 	"encoding/json"
 	"io"
+	"strings"
 	"time"
 )
 
@@ -41,8 +42,8 @@ type Activity struct {
 	Location    string
 	Student     string
 	Staff       string
-	StartUTS    int `json:"start"`
-	EndUTS      int `json:"end"`
+	StartUTS    int64 `json:"start"`
+	EndUTS      int64 `json:"end"`
 	Week        int
 	Width       int
 	Left        int
@@ -65,6 +66,84 @@ func ParseJSON(r io.Reader) (Data, error) {
 	}
 
 	return d, nil
+}
+
+type NewData struct {
+	Name     string
+	Start    string
+	End      string
+	Teachers []struct {
+		Code string
+	}
+	Rooms []struct {
+		Name string
+	}
+	Subgroups []struct {
+		Name string
+	}
+}
+
+func (d NewData) rooms() string {
+	loc := []string{}
+	for _, r := range d.Rooms {
+		loc = append(loc, r.Name)
+	}
+
+	return strings.Join(loc, ",")
+}
+
+func (d NewData) groups() string {
+	loc := []string{}
+	for _, r := range d.Subgroups {
+		loc = append(loc, r.Name)
+	}
+
+	return strings.Join(loc, ",")
+}
+
+func (d NewData) staff() string {
+	loc := []string{}
+	for _, r := range d.Teachers {
+		loc = append(loc, r.Code)
+	}
+
+	return strings.Join(loc, ",")
+}
+
+func ParseJSONNew(r io.Reader) (Data, error) {
+	d := []NewData{}
+
+	dec := json.NewDecoder(r)
+	err := dec.Decode(&d)
+	if err != nil {
+		return Data{}, err
+	}
+
+	return newToOld(d), nil
+}
+
+func newToOld(newData []NewData) Data {
+	acts := make([]Activity, 0, len(newData))
+
+	for _, d := range newData {
+		start, _ := time.Parse("2006-01-02T15:04:05", d.Start)
+		end, _ := time.Parse("2006-01-02T15:04:05", d.End)
+
+		act := Activity{
+			Description: d.Name,
+			Location:    d.rooms(),
+			Student:     d.groups(),
+			Staff:       d.staff(),
+			StartUTS:    start.Unix() * 1000,
+			EndUTS:      end.Unix() * 1000,
+		}
+
+		acts = append(acts, act)
+	}
+
+	return Data{
+		ActivityData: acts,
+	}
 }
 
 func (a Activity) Start() time.Time {

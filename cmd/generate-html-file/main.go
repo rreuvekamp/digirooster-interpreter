@@ -95,6 +95,8 @@ func main() {
 
 	tw, err := toTemplateWeeks(d)
 
+	_ = tw
+
 	err = tmpl.Execute(os.Stdout, templateData{
 		os.Args[2],
 		time.Now().Format("2006-01-02 15:04"),
@@ -109,7 +111,7 @@ func readData(fn string) (drparser.Data, error) {
 	}
 	defer f.Close()
 
-	return drparser.ParseJSON(f)
+	return drparser.ParseJSONNew(f)
 }
 
 func toTemplateWeeks(d drparser.Data) ([]templateWeek, error) {
@@ -284,6 +286,10 @@ func staffName(short string) []templateStaff {
 			n = "F. de Kooi"
 		case "STRI":
 			n = "I. Stroeffe"
+		case "RIHH":
+			n = "H. Rietdijk"
+		case "BABA":
+			n = "B. Barnard"
 		}
 
 		staff := templateStaff{
