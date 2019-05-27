@@ -89,7 +89,7 @@ func (d NewData) rooms() string {
 		loc = append(loc, r.Name)
 	}
 
-	return strings.Join(loc, ",")
+	return strings.Join(loc, ", ")
 }
 
 func (d NewData) groups() string {
@@ -98,7 +98,7 @@ func (d NewData) groups() string {
 		loc = append(loc, r.Name)
 	}
 
-	return strings.Join(loc, ",")
+	return strings.Join(loc, ", ")
 }
 
 func (d NewData) staff() string {
@@ -107,7 +107,7 @@ func (d NewData) staff() string {
 		loc = append(loc, r.Code)
 	}
 
-	return strings.Join(loc, ",")
+	return strings.Join(loc, ", ")
 }
 
 func ParseJSONNew(r io.Reader) (Data, error) {
@@ -122,12 +122,14 @@ func ParseJSONNew(r io.Reader) (Data, error) {
 	return newToOld(d), nil
 }
 
+var loc, _ = time.LoadLocation("Europe/Amsterdam")
+
 func newToOld(newData []NewData) Data {
 	acts := make([]Activity, 0, len(newData))
 
 	for _, d := range newData {
-		start, _ := time.Parse("2006-01-02T15:04:05", d.Start)
-		end, _ := time.Parse("2006-01-02T15:04:05", d.End)
+		start, _ := time.ParseInLocation("2006-01-02T15:04:05", d.Start, loc)
+		end, _ := time.ParseInLocation("2006-01-02T15:04:05", d.End, loc)
 
 		act := Activity{
 			Description: d.Name,

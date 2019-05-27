@@ -18,6 +18,7 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
+
 	"html/template"
 	"log"
 	"os"
@@ -94,8 +95,6 @@ func main() {
 	}
 
 	tw, err := toTemplateWeeks(d)
-
-	_ = tw
 
 	err = tmpl.Execute(os.Stdout, templateData{
 		os.Args[2],
