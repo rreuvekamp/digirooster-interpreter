@@ -330,6 +330,12 @@ func classNames(orig string) []string {
 // descName formats the activity description.
 func descName(orig string) (course string, name string) {
 	items := strings.Split(orig, "/")
+
+	// Remove empty fields.
+	for len(items) > 0 && items[0] == "" {
+		items = items[1:]
+	}
+
 	if len(items) > 1 {
 		course = items[0]
 
