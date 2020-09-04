@@ -72,7 +72,7 @@ type NewData struct {
 	Name     string
 	Start    string
 	End      string
-	Teachers []struct {
+	Lecturers []struct {
 		Code string
 	}
 	Rooms []struct {
@@ -103,7 +103,7 @@ func (d NewData) groups() string {
 
 func (d NewData) staff() string {
 	loc := []string{}
-	for _, r := range d.Teachers {
+	for _, r := range d.Lecturers {
 		loc = append(loc, r.Code)
 	}
 
